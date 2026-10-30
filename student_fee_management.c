@@ -7,22 +7,19 @@ int main()
     char username[30], password[30];
     char studentName[50];
 
+    int attempts = 3;
     int i, rollNo, choice, ch;
-    int attempts = 0;
     int login = 0;
-    int loginSuccess = 0;
 
     float tuitionFee, examFee, libraryFee;
     float totalFee, paidAmount = 0;
     float payment, balance;
 
-    /* WELCOME PAGE */
     printf("\n====================================\n");
     printf("       WELCOME TO OUR COLLEGE\n");
     printf("   STUDENT FEE MANAGEMENT SYSTEM\n");
     printf("====================================\n");
 
-    /* LOGIN PAGE */
     printf("\n====================================\n");
     printf("              LOGIN PAGE\n");
     printf("====================================\n");
@@ -30,28 +27,20 @@ int main()
     printf("Enter Username: ");
     scanf("%29s", username);
 
-    while (attempts < 3)
+    while (attempts > 0)
     {
-        printf("Enter Password: ");
         i = 0;
 
-        while (1)
-        {
-            ch = getch();
+        printf("Password: ");
 
-            if (ch == '\r' || ch == '\n')
+        while ((ch = getch()) != '\r' && ch != '\n')
+        {
+            if (ch == '\b' && i > 0)
             {
-                break;
+                i--;
+                printf("\b \b");
             }
-            else if (ch == '\b')
-            {
-                if (i > 0)
-                {
-                    i--;
-                    printf("\b \b");
-                }
-            }
-            else if (ch >= 32 && ch <= 126 && i < 29)
+            else if (ch != '\b' && i < 29)
             {
                 password[i++] = (char)ch;
                 printf("*");
@@ -61,39 +50,23 @@ int main()
         password[i] = '\0';
         printf("\n");
 
-        if (strcmp(username, "admin") == 0 &&
-            strcmp(password, "1234") == 0)
+        if (strcmp(password, "12345") == 0)
         {
+            printf("Login successful!\n");
             login = 1;
-            loginSuccess = 1;
-
-            printf("\nLogin Successful!\n");
-            printf("Welcome to Student Fee Management System.\n");
-
             break;
         }
-        else
-        {
-            attempts++;
 
-            printf("Invalid Username or Password!\n");
-
-            if (attempts < 3)
-            {
-                printf("Attempts remaining: %d\n",
-                       3 - attempts);
-            }
-        }
+        attempts--;
+        printf("Wrong password. Attempts left: %d\n", attempts);
     }
 
-    if (loginSuccess == 0)
+    if (login == 0)
     {
-        printf("\nMaximum login attempts exceeded!\n");
-        printf("Login Failed. Exiting System.\n");
-        return 0;
+        printf("Login locked.\n");
+        return 1;
     }
 
-    /* STUDENT DETAILS */
     printf("\n====================================\n");
     printf("       ENTER STUDENT DETAILS\n");
     printf("====================================\n");
@@ -105,40 +78,38 @@ int main()
     if (scanf("%d", &rollNo) != 1)
     {
         printf("Invalid roll number!\n");
-        return 0;
+        return 1;
     }
 
     printf("Enter Tuition Fee: Rs. ");
     if (scanf("%f", &tuitionFee) != 1)
     {
         printf("Invalid fee amount!\n");
-        return 0;
+        return 1;
     }
 
     printf("Enter Examination Fee: Rs. ");
     if (scanf("%f", &examFee) != 1)
     {
         printf("Invalid fee amount!\n");
-        return 0;
+        return 1;
     }
 
     printf("Enter Library Fee: Rs. ");
     if (scanf("%f", &libraryFee) != 1)
     {
         printf("Invalid fee amount!\n");
-        return 0;
+        return 1;
     }
 
-    if (tuitionFee < 0 || examFee < 0 ||
-        libraryFee < 0)
+    if (tuitionFee < 0 || examFee < 0 || libraryFee < 0)
     {
         printf("Fees cannot be negative!\n");
-        return 0;
+        return 1;
     }
 
     totalFee = tuitionFee + examFee + libraryFee;
 
-    /* FEE MANAGEMENT MENU */
     do
     {
         printf("\n====================================\n");
@@ -156,7 +127,7 @@ int main()
         if (scanf("%d", &choice) != 1)
         {
             printf("Invalid input!\n");
-            return 0;
+            return 1;
         }
 
         switch (choice)
@@ -169,26 +140,19 @@ int main()
 
             case 2:
                 printf("\n------ TOTAL COLLEGE FEE ------\n");
-                printf("Tuition Fee     : Rs. %.2f\n",
-                       tuitionFee);
-                printf("Examination Fee : Rs. %.2f\n",
-                       examFee);
-                printf("Library Fee     : Rs. %.2f\n",
-                       libraryFee);
-                printf("Total Fee       : Rs. %.2f\n",
-                       totalFee);
+                printf("Tuition Fee     : Rs. %.2f\n", tuitionFee);
+                printf("Examination Fee : Rs. %.2f\n", examFee);
+                printf("Library Fee     : Rs. %.2f\n", libraryFee);
+                printf("Total Fee       : Rs. %.2f\n", totalFee);
                 break;
 
             case 3:
                 balance = totalFee - paidAmount;
 
                 printf("\n------ COLLEGE FEE PAYMENT ------\n");
-                printf("Total Fee       : Rs. %.2f\n",
-                       totalFee);
-                printf("Previously Paid : Rs. %.2f\n",
-                       paidAmount);
-                printf("Balance Due     : Rs. %.2f\n",
-                       balance);
+                printf("Total Fee       : Rs. %.2f\n", totalFee);
+                printf("Previously Paid : Rs. %.2f\n", paidAmount);
+                printf("Balance Due     : Rs. %.2f\n", balance);
 
                 if (balance <= 0.001)
                 {
@@ -201,7 +165,7 @@ int main()
                     if (scanf("%f", &payment) != 1)
                     {
                         printf("Invalid payment input!\n");
-                        return 0;
+                        return 1;
                     }
 
                     if (payment <= 0 || payment > balance)
@@ -211,10 +175,8 @@ int main()
                     else
                     {
                         paidAmount += payment;
-
                         printf("Payment successful!\n");
-                        printf("Total Paid: Rs. %.2f\n",
-                               paidAmount);
+                        printf("Total Paid: Rs. %.2f\n", paidAmount);
                         printf("Remaining Balance: Rs. %.2f\n",
                                totalFee - paidAmount);
                     }
@@ -247,8 +209,6 @@ int main()
                 break;
 
             case 5:
-                login = 0;
-
                 printf("\n====================================\n");
                 printf("              LOGOUT PAGE\n");
                 printf("====================================\n");
@@ -260,7 +220,7 @@ int main()
                 printf("\nInvalid option! Please choose 1 to 5.\n");
         }
 
-    } while (choice != 5 && login == 1);
+    } while (choice != 5);
 
     return 0;
 }
