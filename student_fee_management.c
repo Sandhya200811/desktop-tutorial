@@ -2,47 +2,61 @@
 #include <string.h>
 #include <conio.h>
 
+struct Student
+{
+    int rollno;
+    char name[50];
+    char course[30];
+    float totalfee;
+    float paidfee;
+    float pendingfee;
+};
+
 int main()
 {
+    struct Student s[100];
+
+    int choice, n = 0, i, search, found;
+    int attempts = 3, login = 0;
+    float amount;
+
     char username[30], password[30];
-    char studentName[50];
-
-    int attempts = 3;
-    int i, rollNo, choice, ch;
-    int login = 0;
-
-    float tuitionFee, examFee, libraryFee;
-    float totalFee, paidAmount = 0;
-    float payment, balance;
+    char ch;
 
     printf("\n====================================\n");
-    printf("       WELCOME TO OUR COLLEGE\n");
     printf("   STUDENT FEE MANAGEMENT SYSTEM\n");
-    printf("====================================\n");
-
-    printf("\n====================================\n");
     printf("              LOGIN PAGE\n");
     printf("====================================\n");
 
-    printf("Enter Username: ");
-    scanf("%29s", username);
-
     while (attempts > 0)
     {
+        printf("\nEnter Username: ");
+        scanf("%29s", username);
+
+        printf("Enter Password: ");
+
         i = 0;
 
-        printf("Password: ");
-
-        while ((ch = getch()) != '\r' && ch != '\n')
+        while (1)
         {
-            if (ch == '\b' && i > 0)
+            ch = getch();
+
+            if (ch == '\r')
             {
-                i--;
-                printf("\b \b");
+                break;
             }
-            else if (ch != '\b' && i < 29)
+            else if (ch == '\b')
             {
-                password[i++] = (char)ch;
+                if (i > 0)
+                {
+                    i--;
+                    printf("\b \b");
+                }
+            }
+            else if (ch >= 32 && ch <= 126 && i < 29)
+            {
+                password[i] = ch;
+                i++;
                 printf("*");
             }
         }
@@ -50,177 +64,220 @@ int main()
         password[i] = '\0';
         printf("\n");
 
-        if (strcmp(password, "12345") == 0)
+        if (strcmp(username, "admin") == 0 &&
+            strcmp(password, "1234") == 0)
         {
-            printf("Login successful!\n");
             login = 1;
+
+            printf("\nLogin Successful!\n");
+            printf("Welcome to Student Fee Management System.\n");
+
             break;
         }
+        else
+        {
+            attempts--;
 
-        attempts--;
-        printf("Wrong password. Attempts left: %d\n", attempts);
+            printf("\nInvalid Username or Password!\n");
+
+            if (attempts > 0)
+            {
+                printf("Attempts remaining: %d\n", attempts);
+                printf("Please try again.\n");
+            }
+            else
+            {
+                printf("Maximum attempts reached!\n");
+                printf("Login Failed. Exiting System.\n");
+
+                return 0;
+            }
+        }
     }
-
-    if (login == 0)
-    {
-        printf("Login locked.\n");
-        return 1;
-    }
-
-    printf("\n====================================\n");
-    printf("       ENTER STUDENT DETAILS\n");
-    printf("====================================\n");
-
-    printf("Enter Student Name: ");
-    scanf(" %49[^\n]", studentName);
-
-    printf("Enter Roll Number: ");
-    if (scanf("%d", &rollNo) != 1)
-    {
-        printf("Invalid roll number!\n");
-        return 1;
-    }
-
-    printf("Enter Tuition Fee: Rs. ");
-    if (scanf("%f", &tuitionFee) != 1)
-    {
-        printf("Invalid fee amount!\n");
-        return 1;
-    }
-
-    printf("Enter Examination Fee: Rs. ");
-    if (scanf("%f", &examFee) != 1)
-    {
-        printf("Invalid fee amount!\n");
-        return 1;
-    }
-
-    printf("Enter Library Fee: Rs. ");
-    if (scanf("%f", &libraryFee) != 1)
-    {
-        printf("Invalid fee amount!\n");
-        return 1;
-    }
-
-    if (tuitionFee < 0 || examFee < 0 || libraryFee < 0)
-    {
-        printf("Fees cannot be negative!\n");
-        return 1;
-    }
-
-    totalFee = tuitionFee + examFee + libraryFee;
 
     do
     {
         printf("\n====================================\n");
-        printf("        FEE MANAGEMENT MENU\n");
+        printf("   STUDENT FEE MANAGEMENT SYSTEM\n");
         printf("====================================\n");
-        printf("1. Display Student Details\n");
-        printf("2. Display Total Fee\n");
-        printf("3. Pay College Fee\n");
-        printf("4. Display Fee Receipt\n");
+        printf("1. Add Student Details\n");
+        printf("2. Display All Students\n");
+        printf("3. Pay Student Fee\n");
+        printf("4. Search Student\n");
         printf("5. Logout\n");
-        printf("====================================\n");
+        printf("Enter your choice: ");
 
-        printf("Enter your option: ");
-
-        if (scanf("%d", &choice) != 1)
-        {
-            printf("Invalid input!\n");
-            return 1;
-        }
+        scanf("%d", &choice);
 
         switch (choice)
         {
             case 1:
-                printf("\n------ STUDENT DETAILS ------\n");
-                printf("Student Name: %s\n", studentName);
-                printf("Roll Number : %d\n", rollNo);
+                if (n >= 100)
+                {
+                    printf("Student limit reached!\n");
+                    break;
+                }
+
+                printf("Enter Roll Number: ");
+                scanf("%d", &s[n].rollno);
+
+                printf("Enter Student Name: ");
+                scanf(" %49[^\n]", s[n].name);
+
+                printf("Enter Course: ");
+                scanf(" %29[^\n]", s[n].course);
+
+                printf("Enter Total Fee: ");
+                scanf("%f", &s[n].totalfee);
+
+                if (s[n].totalfee < 0)
+                {
+                    printf("Fee cannot be negative!\n");
+                    break;
+                }
+
+                s[n].paidfee = 0;
+                s[n].pendingfee = s[n].totalfee;
+
+                n++;
+
+                printf("Student details added successfully!\n");
                 break;
 
             case 2:
-                printf("\n------ TOTAL COLLEGE FEE ------\n");
-                printf("Tuition Fee     : Rs. %.2f\n", tuitionFee);
-                printf("Examination Fee : Rs. %.2f\n", examFee);
-                printf("Library Fee     : Rs. %.2f\n", libraryFee);
-                printf("Total Fee       : Rs. %.2f\n", totalFee);
-                break;
-
-            case 3:
-                balance = totalFee - paidAmount;
-
-                printf("\n------ COLLEGE FEE PAYMENT ------\n");
-                printf("Total Fee       : Rs. %.2f\n", totalFee);
-                printf("Previously Paid : Rs. %.2f\n", paidAmount);
-                printf("Balance Due     : Rs. %.2f\n", balance);
-
-                if (balance <= 0.001)
+                if (n == 0)
                 {
-                    printf("All fees have been paid!\n");
+                    printf("No student records available.\n");
                 }
                 else
                 {
-                    printf("Enter payment amount: Rs. ");
+                    printf("\n===== STUDENT FEE DETAILS =====\n");
 
-                    if (scanf("%f", &payment) != 1)
+                    for (i = 0; i < n; i++)
                     {
-                        printf("Invalid payment input!\n");
-                        return 1;
+                        printf("\nRoll Number : %d\n", s[i].rollno);
+                        printf("Name        : %s\n", s[i].name);
+                        printf("Course      : %s\n", s[i].course);
+                        printf("Total Fee   : %.2f\n", s[i].totalfee);
+                        printf("Paid Fee    : %.2f\n", s[i].paidfee);
+                        printf("Pending Fee : %.2f\n", s[i].pendingfee);
                     }
+                }
+                break;
 
-                    if (payment <= 0 || payment > balance)
+            case 3:
+                if (n == 0)
+                {
+                    printf("No student records available.\n");
+                    break;
+                }
+
+                printf("Enter Roll Number: ");
+                scanf("%d", &search);
+
+                found = 0;
+
+                for (i = 0; i < n; i++)
+                {
+                    if (s[i].rollno == search)
                     {
-                        printf("Invalid payment amount!\n");
+                        found = 1;
+
+                        printf("Student Name: %s\n", s[i].name);
+                        printf("Pending Fee: %.2f\n", s[i].pendingfee);
+
+                        if (s[i].pendingfee <= 0)
+                        {
+                            printf("All fees are already paid.\n");
+                        }
+                        else
+                        {
+                            printf("Enter Amount to Pay: ");
+                            scanf("%f", &amount);
+
+                            if (amount <= 0)
+                            {
+                                printf("Enter a valid positive amount.\n");
+                            }
+                            else if (amount > s[i].pendingfee)
+                            {
+                                printf("Amount exceeds pending fee!\n");
+                            }
+                            else
+                            {
+                                s[i].paidfee += amount;
+
+                                s[i].pendingfee =s[i].totalfee - s[i].paidfee;
+
+                                printf("Fee payment successful!\n");
+                                printf("Total Paid: %.2f\n", s[i].paidfee);
+                                printf("Remaining Fee: %.2f\n",s[i].pendingfee);
+                            }
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        paidAmount += payment;
-                        printf("Payment successful!\n");
-                        printf("Total Paid: Rs. %.2f\n", paidAmount);
-                        printf("Remaining Balance: Rs. %.2f\n",
-                               totalFee - paidAmount);
-                    }
+                }
+
+                if (found == 0)
+                {
+                    printf("Student not found!\n");
                 }
                 break;
 
             case 4:
-                balance = totalFee - paidAmount;
-
-                printf("\n========== FEE RECEIPT ==========\n");
-                printf("Student Name : %s\n", studentName);
-                printf("Roll Number  : %d\n", rollNo);
-                printf("Tuition Fee  : Rs. %.2f\n", tuitionFee);
-                printf("Exam Fee     : Rs. %.2f\n", examFee);
-                printf("Library Fee  : Rs. %.2f\n", libraryFee);
-                printf("Total Fee    : Rs. %.2f\n", totalFee);
-                printf("Amount Paid  : Rs. %.2f\n", paidAmount);
-                printf("Balance Due  : Rs. %.2f\n", balance);
-
-                if (balance <= 0.001)
+                if (n == 0)
                 {
-                    printf("Status       : FULLY PAID\n");
-                }
-                else
-                {
-                    printf("Status       : PAYMENT PENDING\n");
+                    printf("No student records available.\n");
+                    break;
                 }
 
-                printf("=================================\n");
+                printf("Enter Roll Number to Search: ");
+                scanf("%d", &search);
+
+                found = 0;
+
+                for (i = 0; i < n; i++)
+                {
+                    if (s[i].rollno == search)
+                    {
+                        found = 1;
+
+                        printf("\n===== STUDENT DETAILS =====\n");
+                        printf("Roll Number : %d\n", s[i].rollno);
+                        printf("Name        : %s\n", s[i].name);
+                        printf("Course      : %s\n", s[i].course);
+                        printf("Total Fee   : %.2f\n", s[i].totalfee);
+                        printf("Paid Fee    : %.2f\n", s[i].paidfee);
+                        printf("Pending Fee : %.2f\n", s[i].pendingfee);
+
+                        break;
+                    }
+                }
+
+                if (found == 0)
+                {
+                    printf("Student not found!\n");
+                }
                 break;
 
             case 5:
                 printf("\n====================================\n");
                 printf("              LOGOUT PAGE\n");
                 printf("====================================\n");
-                printf("You have logged out successfully!\n");
+                printf("You have logged out successfully.\n");
+                printf("Thank you for using our system.\n");
+                printf("Goodbye!\n");
                 printf("====================================\n");
+
+                login = 0;
                 break;
 
             default:
-                printf("\nInvalid option! Please choose 1 to 5.\n");
+                printf("Invalid choice! Please try again.\n");
         }
 
-    } while (choice != 5);
+    } while (login == 1);
 
     return 0;
 }
